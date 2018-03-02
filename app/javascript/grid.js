@@ -3,59 +3,50 @@ const MAX_X = 10;
 const MAX_Y = 10;
 
 export class Block {
-  constructor(x, y, colour) {
-    this.x = x;
-    this.y = y;
+  constructor(colour) {
     this.colour = colour || COLOURS[Math.floor(Math.random() * COLOURS.length)];
   }
 }
 
 export class BlockGrid {
   constructor(width, height) {
-    this.grid = [];
     this.rendered = [];
-
-    for (let x = 0; x < width; x++) {
-      let col = [];
-      for (let y = 0; y < height; y++) {
-        col.push(new Block(x, y));
-      }
-
-      this.grid.push(col);
-    }
-
+    this.grid = Array(width).fill([]).map(() => {
+      return Array(height).fill([]).map(() => new Block());
+    });
     return this;
   }
 
-  render(el = document.querySelector('#gridEl')) {
+  render(container = document.querySelector('#gridEl')) {
+    container.innerHTML = "";
 
-    for (let x = 0; x < this.grid.length; x++) {
-      let id = 'col_' + x;
-      let colEl = document.createElement('div');
-      colEl.className = 'col';
-      colEl.id = id;
-      el.appendChild(colEl);
+    this.grid.forEach((column, columnId) => {
+      const columnElement = document.createElement('div');
+      columnElement.className = 'col';
 
-      for (let y = this.grid[x].length - 1; y >= 0; y--) {
-        let block = this.grid[x][y],
-          id = `block_${x}x${y}`,
-          blockEl = document.createElement('div');
+      container.appendChild(columnElement);
 
-        blockEl.id = id;
-        blockEl.className = 'block';
-        blockEl.style.background = block.colour;
-        blockEl.addEventListener('click', evt => this.blockClicked(evt, block));
-        colEl.appendChild(blockEl);
-      }
+      column.forEach((block, rowId) => {
+        const blockElement = document.createElement('div');
+        blockElement.className = 'block';
+        blockElement.style.background = block.colour;
+        blockElement.addEventListener('click', () => {
+          this.blockClicked(block, {
+            xCoord: columnId,
+            yCoord: rowId
+          })
+        });
 
-      this.rendered.push(colEl);
-    }
+        columnElement.appendChild(blockElement);
+      });
 
+      this.rendered.push(columnElement);
+    });
     return this;
   }
 
-  blockClicked(e, block) {
-    console.log(e, block);
+  blockClicked(block, { xCoord, yCoord }) {
+    console.log('%o x:%i y:%i', block, xCoord, yCoord);
   }
 }
 

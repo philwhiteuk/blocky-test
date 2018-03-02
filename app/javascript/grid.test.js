@@ -8,15 +8,9 @@ import path from 'path';
 const html = fs.readFileSync(path.resolve('./public/index.html'),'utf8');
 
 describe('Block', () => {
-  it('should be created with correct coordinates and one of the valid colours', () => {
-    let testCoords = [[1, 2], [4, 9], [0, 0]];
-
-    testCoords.forEach(testCoord => {
-      let block = new Block(...testCoord);
-      assert.equal(block.x, testCoord[0], 'x is set correctly');
-      assert.equal(block.y, testCoord[1], 'y is set correctly');
-      assert.ok(COLOURS.indexOf(block.colour) > -1, 'colour is valid');
-    });
+  it('should randomly select a colour if none is provided', () => {
+    let block = new Block();
+    assert.isTrue(COLOURS.includes(block.colour), 'has a random colour');
   });
 });
 
@@ -38,7 +32,7 @@ describe('BlockGrid', () => {
   });
 
   it('should render a valid game from the grid', async () => {
-    const testColumn = Array(4).fill(new Block(0, 0, 'red'));
+    const testColumn = Array(4).fill(new Block(COLOURS[0]));
     const testGrid = {
       grid: Array(4).fill(testColumn),
       rendered: []
@@ -62,25 +56,28 @@ describe('BlockGrid', () => {
     const testColumnA = Array(4).fill();
     const testGrid = Object.assign({}, BlockGrid, {
       grid: [
-        [new Block(0, 0, 'red'), new Block(0, 0, 'green'), new Block(0, 0, 'red')],
-        [new Block(0, 0, 'green'), new Block(0, 0, 'green'), new Block(0, 0, 'green')],
-        [new Block(0, 0, 'red'), new Block(0, 0, 'green'), new Block(0, 0, 'red')],
+        [new Block(COLOURS[0]), new Block(COLOURS[1]), new Block(COLOURS[0])],
+        [new Block(COLOURS[1]), new Block(COLOURS[1]), new Block(COLOURS[1])],
+        [new Block(COLOURS[0]), new Block(COLOURS[1]), new Block(COLOURS[0])],
       ],
       rendered: [],
       render: () => {}
     });
 
-    BlockGrid.prototype.blockClicked.apply(testGrid, [{}, new Block(1, 1, 'green')]);
+    BlockGrid.prototype.blockClicked.apply(testGrid, [
+      new Block(COLOURS[1]), 
+      { xCoord: 0, yCoord: 0 }
+    ]);
 
     assert.lengthOf(testGrid.grid, 3, 'rendered game still has 3 columns');
     assert.lengthOf(testGrid.grid[0], 2, 'column 1 has 2 blocks');
     assert.lengthOf(testGrid.grid[1], 0, 'column 2 has 0 blocks');
     assert.lengthOf(testGrid.grid[2], 2, 'column 3 has 2 blocks');
 
-    assert.deepEqual(testGrid.grid[0][0], new Block(1, 1, 'red'), 'column 1 block 1 is red');
-    assert.deepEqual(testGrid.grid[0][1], new Block(1, 1, 'red'), 'column 1 block 2 is red');
-    assert.deepEqual(testGrid.grid[2][0], new Block(1, 1, 'red'), 'column 3 block 1 is red');
-    assert.deepEqual(testGrid.grid[2][1], new Block(1, 1, 'red'), 'column 3 block 2 is red');
+    assert.deepEqual(testGrid.grid[0][0], new Block(COLOURS[0]), 'column 1 block 1 is red');
+    assert.deepEqual(testGrid.grid[0][1], new Block(COLOURS[0]), 'column 1 block 2 is red');
+    assert.deepEqual(testGrid.grid[2][0], new Block(COLOURS[0]), 'column 3 block 1 is red');
+    assert.deepEqual(testGrid.grid[2][1], new Block(COLOURS[0]), 'column 3 block 2 is red');
   });
 
   it('should rerender the game grid when the grid has changed', () => {
