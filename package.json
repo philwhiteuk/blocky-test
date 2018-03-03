@@ -8,7 +8,7 @@
     "start": "webpack-dev-server --open",
     "test": "mocha --require babel-polyfill --compilers js:babel-register,jsdom-global/register 'app/**/*.test.js'",
     "test:watch": "yarn test -- --watch",
-    "prettier": "prettier --single-quote --write 'app/**/*.js'"
+    "prettier": "node_modules/.bin/prettier --single-quote --write 'app/**/*.js'"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",
